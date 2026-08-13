@@ -1,6 +1,5 @@
 import base64
 import json
-import mimetypes
 import os
 import threading
 import urllib.parse
@@ -39,9 +38,6 @@ def _get_local_model_class():
 
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", os.environ.get("WATERMARK_BACKEND_PORT", "8787")))
-
-STATIC_ROOT = Path(__file__).resolve().parent.parent
-
 
 def json_response(handler, status, payload):
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -99,6 +95,25 @@ class WatermarkBackend:
 BACKEND = WatermarkBackend()
 
 
+def build_version_payload():
+    git_commit = (
+        os.environ.get("RAILWAY_GIT_COMMIT_SHA")
+        or os.environ.get("GIT_COMMIT_SHA")
+        or os.environ.get("COMMIT_SHA")
+        or "local"
+    )
+    if len(git_commit) > 12:
+        git_commit = git_commit[:12]
+
+    return {
+        "ok": True,
+        "service": "xhs-watermark-backend",
+        "gitCommit": git_commit,
+        "provider": BACKEND.provider or "unconfigured",
+        "configured": BACKEND.health()["configured"],
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass  # 静默日志
@@ -117,29 +132,17 @@ class Handler(BaseHTTPRequestHandler):
             json_response(self, 200, {"ok": True, "backend": BACKEND.health()})
             return
 
+        if path == "/api/version":
+            json_response(self, 200, build_version_payload())
+            return
+
         # 图片代理端点：/api/proxy-image?url=...&filename=...
         if path == "/api/proxy-image":
             self._handle_proxy_image(qs)
             return
 
-        # 静态文件服务
-        url_path = path
-        if url_path in ("/", ""):
-            url_path = "/去水印.html"
-        file_path = (STATIC_ROOT / url_path.lstrip("/")).resolve()
-        # 路径穿越防护：确保最终路径在 STATIC_ROOT 内
-        if not str(file_path).startswith(str(STATIC_ROOT.resolve())):
-            json_response(self, 403, {"ok": False, "error": "Forbidden"})
-            return
-        if file_path.exists() and file_path.is_file():
-            mime, _ = mimetypes.guess_type(str(file_path))
-            body = file_path.read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", mime or "application/octet-stream")
-            self.send_header("Content-Length", str(len(body)))
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            self.wfile.write(body)
+        if path in ("/", ""):
+            json_response(self, 200, build_version_payload())
             return
 
         json_response(self, 404, {"ok": False, "error": "Not found"})

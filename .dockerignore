@@ -1,0 +1,11 @@
+.git
+__pycache__/
+*.pyc
+.DS_Store
+
+# Local model experiments are not needed for the xhs image fetch API.
+models/
+wheels/
+local_model.py
+lama_model.py
+

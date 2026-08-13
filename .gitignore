@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+models/
+wheels/
+local_model.py
+lama_model.py
+
