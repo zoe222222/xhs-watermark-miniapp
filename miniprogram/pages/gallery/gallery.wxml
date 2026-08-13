@@ -1,0 +1,73 @@
+<!-- pages/gallery/gallery.wxml -->
+<view class="page">
+
+  <!-- 顶部摘要 -->
+  <view class="summary-card card">
+    <view class="summary-title">共 {{total}} 张原图</view>
+    <view wx:if="{{sourceUrl}}" class="summary-url text-secondary text-xs">{{sourceUrl}}</view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{images.length === 0}}" class="empty-state">
+    <text class="empty-icon">🖼️</text>
+    <text class="empty-text">未找到图片，请返回重试</text>
+  </view>
+
+  <!-- 图片网格 -->
+  <view wx:else class="grid-wrap">
+    <view
+      wx:for="{{images}}"
+      wx:key="url"
+      class="img-card"
+    >
+      <!-- 图片（用外层容器撑比例，兼容低版基础库） -->
+      <view class="img-thumb-wrap" bindtap="onPreview" data-index="{{index}}">
+        <image
+          class="img-thumb"
+          src="{{item.displayUrl}}"
+          mode="aspectFill"
+          binderror="onImgError"
+          data-index="{{index}}"
+        />
+      </view>
+
+      <!-- 图片序号与尺寸 -->
+      <view class="img-meta">
+        <text class="img-index text-xs text-secondary">第 {{index + 1}} 张</text>
+        <text wx:if="{{item.width && item.height}}" class="img-size text-xs text-secondary">
+          {{item.width}}×{{item.height}}
+        </text>
+      </view>
+
+      <!-- 下载按钮 -->
+      <view
+        class="dl-btn {{item.downloading ? 'dl-btn-loading' : ''}} {{item.saved ? 'dl-btn-saved' : ''}}"
+        bindtap="onDownloadOne"
+        data-index="{{index}}"
+      >
+        <view wx:if="{{item.downloading}}" class="spinner-tiny"></view>
+        <text class="btn-text">{{item.saved ? '已保存 ✓' : item.downloading ? '保存中' : '保存到相册'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部悬浮：全部下载 -->
+  <view class="footer-bar" wx:if="{{images.length > 1}}">
+    <view
+      class="btn-all {{downloadingAll ? 'btn-all-loading' : ''}} {{allSaved ? 'btn-all-saved' : ''}}"
+      bindtap="onDownloadAll"
+    >
+      <view wx:if="{{downloadingAll}}" class="spinner-small"></view>
+      <text class="btn-text">{{allSaved ? '全部已保存 ✓' : downloadingAll ? '保存中 ' + savedCount + '/' + total : '全部保存到相册'}}</text>
+    </view>
+  </view>
+
+  <!-- 底部留白，防止被悬浮按钮遮挡 -->
+  <view class="footer-spacer"></view>
+
+  <!-- Toast -->
+  <view class="toast-wrap">
+    <view class="toast {{toastVisible ? '' : 'toast-hidden'}}">{{toastMsg}}</view>
+  </view>
+
+</view>

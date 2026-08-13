@@ -1,9 +1,19 @@
+# Python
 __pycache__/
 *.pyc
-.DS_Store
+*.pyo
 
+# WeChat DevTools
+miniprogram/project.private.config.json
+
+# Local model experiments and offline wheels
 models/
 wheels/
 local_model.py
 lama_model.py
 
+# macOS
+.DS_Store
+
+# Node
+node_modules/

@@ -1,0 +1,187 @@
+/* pages/gallery/gallery.wxss */
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 80rpx;
+  background: linear-gradient(160deg, #F4FBF2 0%, #DDF3D7 100%);
+  background-attachment: fixed;
+}
+
+/* ── 摘要卡片 ──────────────────────────────────────────────────────── */
+.summary-card {
+  margin: 24rpx 32rpx 20rpx;
+  padding: 28rpx 36rpx;
+}
+
+.summary-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1F2A1F;
+  margin-bottom: 4rpx;
+}
+
+.summary-url {
+  font-size: 22rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 图片网格 ──────────────────────────────────────────────────────── */
+.grid-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  padding: 0 32rpx;
+}
+
+.img-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(88, 174, 88, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 用 padding-top 撑出 3:4 比例，兼容低版本基础库 */
+.img-thumb-wrap {
+  width: 100%;
+  position: relative;
+  padding-top: 133.33%;
+  background: #E8F7E8;
+  overflow: hidden;
+}
+
+.img-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.img-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 12rpx 16rpx 4rpx;
+}
+
+.img-index {
+  font-size: 22rpx;
+}
+
+.img-size {
+  font-size: 22rpx;
+}
+
+/* ── 下载按钮（单张） ───────────────────────────────────────────────── */
+.dl-btn {
+  margin: 8rpx 16rpx 16rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, #7DD27A 0%, #5FB55E 100%);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 500;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.dl-btn-loading {
+  opacity: 0.7;
+}
+
+.dl-btn-saved {
+  background: #E8F7E8;
+  color: #58AE58;
+}
+
+/* ── Spinner ───────────────────────────────────────────────────────── */
+.spinner-tiny {
+  width: 28rpx;
+  height: 28rpx;
+  border: 3rpx solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-small {
+  width: 32rpx;
+  height: 32rpx;
+  border: 4rpx solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 底部悬浮全部下载 ───────────────────────────────────────────────── */
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: rgba(235, 248, 233, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.btn-all {
+  height: 104rpx;
+  background: linear-gradient(135deg, #7DD27A 0%, #5FB55E 100%);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  letter-spacing: 1rpx;
+}
+
+.btn-all-loading {
+  opacity: 0.75;
+}
+
+.btn-all-saved {
+  background: #E8F7E8;
+  color: #58AE58;
+}
+
+.btn-text {
+  line-height: normal;
+  display: block;
+}
+
+.footer-spacer {
+  height: 360rpx;
+}
+
+/* ── 空状态 ─────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #8BA88A;
+}

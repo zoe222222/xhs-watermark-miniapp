@@ -1,0 +1,88 @@
+/* ── 全局基础样式 ─────────────────────────────────────────────────── */
+
+page {
+  background: linear-gradient(160deg, #F4FBF2 0%, #DDF3D7 100%);
+  min-height: 100vh;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  color: #1F2A1F;
+  box-sizing: border-box;
+}
+
+/* ── 卡片 ─────────────────────────────────────────────────────────── */
+.card {
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 48rpx;
+  padding: 40rpx;
+  margin: 0 32rpx 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(88, 174, 88, 0.08);
+}
+
+/* ── 主按钮 ───────────────────────────────────────────────────────── */
+.btn-primary {
+  display: block;
+  width: 100%;
+  height: 104rpx;
+  line-height: 104rpx;
+  text-align: center;
+  background: linear-gradient(135deg, #7DD27A 0%, #5FB55E 100%);
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+  border-radius: 52rpx;
+  border: none;
+  letter-spacing: 2rpx;
+}
+
+.btn-primary[disabled] {
+  opacity: 0.5;
+}
+
+/* ── 次级按钮 ─────────────────────────────────────────────────────── */
+.btn-ghost {
+  display: block;
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background: transparent;
+  color: #58AE58;
+  font-size: 30rpx;
+  border-radius: 44rpx;
+  border: 2rpx solid #D8E9D6;
+  letter-spacing: 1rpx;
+}
+
+/* ── Toast ────────────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  pointer-events: none;
+  max-width: 72%;
+}
+
+.toast {
+  background: rgba(31, 42, 31, 0.88);
+  color: #fff;
+  font-size: 28rpx;
+  padding: 22rpx 52rpx;
+  border-radius: 9999rpx;
+  text-align: center;
+  line-height: 1.5;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.toast-hidden {
+  display: none;
+}
+
+
+/* ── 文字层级 ─────────────────────────────────────────────────────── */
+.text-primary   { color: #1F2A1F; }
+.text-secondary { color: #5D6E5D; }
+.text-brand     { color: #58AE58; }
+.text-sm        { font-size: 26rpx; }
+.text-xs        { font-size: 24rpx; }

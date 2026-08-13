@@ -9,11 +9,11 @@
 
 ## 首次部署
 
-服务器安装 Docker 和 Docker Compose 后，在服务器上拉取后端仓库：
+服务器安装 Docker 和 Docker Compose 后，在服务器上拉取项目仓库：
 
 ```bash
-git clone https://github.com/zoe222222/xhs-watermark-backend.git
-cd xhs-watermark-backend
+git clone git@github.com:zoe222222/xhs-watermark-miniapp.git
+cd xhs-watermark-miniapp/backend
 cp deploy/Caddyfile.example deploy/Caddyfile
 ```
 

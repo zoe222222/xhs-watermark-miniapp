@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/gallery/gallery"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F4FBF2",
+    "navigationBarTitleText": "原图助手",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F4FBF2"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

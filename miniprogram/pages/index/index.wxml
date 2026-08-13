@@ -1,0 +1,69 @@
+<!-- pages/index/index.wxml -->
+<view class="page">
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-icon">🍃</view>
+    <view class="hero-title">一键获取小红书原图</view>
+    <view class="hero-sub text-secondary text-sm">粘贴帖子链接，获取无水印原图</view>
+  </view>
+
+  <!-- 输入卡片 -->
+  <view class="card input-card">
+    <view class="input-label text-secondary text-sm">小红书链接或分享文字</view>
+    <view class="input-row">
+      <textarea
+        class="link-input"
+        placeholder="粘贴小红书链接或分享文字…"
+        placeholder-class="input-placeholder"
+        value="{{linkText}}"
+        bindinput="onLinkInput"
+        auto-height
+        maxlength="500"
+      />
+      <view wx:if="{{linkText}}" class="clear-btn" bindtap="onClear">
+        <text class="clear-icon">✕</text>
+      </view>
+    </view>
+
+    <view class="btn-row">
+      <view class="btn-paste" bindtap="onPaste">粘贴</view>
+      <view
+        class="btn-fetch {{fetching ? 'btn-fetch-loading' : ''}} {{!linkText ? 'btn-fetch-disabled' : ''}}"
+        bindtap="onFetch"
+      >
+        <view wx:if="{{fetching}}" class="spinner-small"></view>
+        <text>{{fetching ? '解析中…' : '获取原图'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明卡片 -->
+  <view class="card tips-card">
+    <view class="tips-title text-secondary text-sm">使用说明</view>
+    <view class="tip-row">
+      <text class="tip-dot">•</text>
+      <text class="tip-text text-secondary text-sm">在小红书 App 内分享帖子，复制链接</text>
+    </view>
+    <view class="tip-row">
+      <text class="tip-dot">•</text>
+      <text class="tip-text text-secondary text-sm">粘贴到上方输入框，点击获取原图</text>
+    </view>
+    <view class="tip-row">
+      <text class="tip-dot">•</text>
+      <text class="tip-text text-secondary text-sm">选择图片后保存到相册即可</text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-wrap">
+    <text class="version-text">{{versionText}}</text>
+    <text class="version-text">{{backendVersionText}}</text>
+  </view>
+
+  <!-- Toast -->
+  <view class="toast-wrap">
+    <view class="toast {{toastVisible ? '' : 'toast-hidden'}}">{{toastMsg}}</view>
+  </view>
+
+</view>
