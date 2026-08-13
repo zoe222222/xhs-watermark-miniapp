@@ -32,8 +32,7 @@ def extract_note_url(text: str) -> Optional[str]:
     """从任意文本中提取小红书帖子 URL（支持短链）。"""
     patterns = [
         r"https?://www\.xiaohongshu\.com/(?:explore|discovery/item)/[0-9a-f]+[^\s\"'<>]*",
-        r"https?://xhslink\.com/[^\s\"'<>]+",
-        r"http://xhslink\.com/[^\s\"'<>]+",
+        r"https?://xhslink\.(?:com|cn)/[^\s\"'<>]+",
     ]
     for p in patterns:
         m = re.search(p, text)
@@ -193,7 +192,7 @@ def fetch_images(raw_input: str) -> dict:
             return {"ok": False, "error": "未能识别小红书帖子链接，请粘贴完整 URL 或分享文本"}
 
     # 若是短链，先解析重定向目标
-    if "xhslink.com" in url:
+    if re.search(r"//xhslink\.(?:com|cn)/", url):
         try:
             url = _resolve_short_url(url, timeout=12)
         except Exception as e:
