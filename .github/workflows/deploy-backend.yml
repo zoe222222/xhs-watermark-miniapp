@@ -1,0 +1,111 @@
+name: Deploy backend to Tencent Cloud
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-tencent-backend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_HOST: ${{ secrets.TENCENT_HOST }}
+      DEPLOY_USER: ${{ secrets.TENCENT_USER }}
+      DEPLOY_DIR: /home/ubuntu/xhs-watermark-miniapp/backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Run backend tests
+        run: python3 -m unittest discover -s tests
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.TENCENT_SSH_PRIVATE_KEY }}
+        run: |
+          set -Eeuo pipefail
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          test -n "$SSH_PRIVATE_KEY"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -T 10 -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Package backend
+        run: |
+          set -Eeuo pipefail
+          tar \
+            --exclude='./deploy/Caddyfile' \
+            -czf "$RUNNER_TEMP/backend.tgz" \
+            -C backend .
+
+      - name: Upload and deploy
+        run: |
+          set -Eeuo pipefail
+          EXPECTED_COMMIT="${GITHUB_SHA:0:12}"
+          REMOTE_ARCHIVE="/tmp/xhs-backend-${GITHUB_SHA}.tgz"
+
+          scp "$RUNNER_TEMP/backend.tgz" \
+            "$DEPLOY_USER@$DEPLOY_HOST:$REMOTE_ARCHIVE"
+
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            "DEPLOY_ARCHIVE='$REMOTE_ARCHIVE' DEPLOY_DIR='$DEPLOY_DIR' DEPLOY_SHA='$EXPECTED_COMMIT' bash -s" <<'REMOTE'
+          set -Eeuo pipefail
+
+          mkdir -p "$DEPLOY_DIR"
+          tar -xzf "$DEPLOY_ARCHIVE" -C "$DEPLOY_DIR"
+          rm -f "$DEPLOY_ARCHIVE"
+
+          cd "$DEPLOY_DIR"
+          sudo env GIT_COMMIT_SHA="$DEPLOY_SHA" docker compose up -d --build
+
+          payload=""
+          for attempt in $(seq 1 10); do
+            if payload=$(curl --fail --silent --show-error --max-time 5 http://127.0.0.1/api/version); then
+              break
+            fi
+            sleep 2
+          done
+
+          printf '%s' "$payload" | python3 -c '
+          import json
+          import sys
+
+          expected = sys.argv[1]
+          payload = json.load(sys.stdin)
+          actual = payload.get("gitCommit")
+          if actual != expected:
+              raise SystemExit(f"deployed commit mismatch: expected {expected}, got {actual}")
+          ' "$DEPLOY_SHA"
+          REMOTE
+
+      - name: Verify public endpoint
+        run: |
+          set -Eeuo pipefail
+          EXPECTED_COMMIT="${GITHUB_SHA:0:12}"
+          payload=$(curl --fail --silent --show-error --max-time 10 \
+            "http://$DEPLOY_HOST/api/version")
+          printf '%s' "$payload" | python3 -c '
+          import json
+          import sys
+
+          expected = sys.argv[1]
+          payload = json.load(sys.stdin)
+          actual = payload.get("gitCommit")
+          if actual != expected:
+              raise SystemExit(f"public commit mismatch: expected {expected}, got {actual}")
+          ' "$EXPECTED_COMMIT"
