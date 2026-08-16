@@ -35,7 +35,7 @@ Page({
         width: img.width || 0,
         height: img.height || 0,
         displayUrl: base + '&thumb=1',  // 缩略图：800px JPEG，加载更快
-        proxyUrl:   base + '&fmt=png',  // 下载用原图转 PNG，iOS 兼容
+        proxyUrl:   base + '&fmt=jpeg', // 下载用 JPEG/PNG 兼容格式，保存更快
         downloading: false,
         saved: false,
       }

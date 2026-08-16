@@ -6,6 +6,8 @@
 
 ### 1. 读取所有需要检查的文件
 
+先执行 `node scripts/update-version.js`，确保 `miniprogram/version.local.js` 写入当前 Git commit。
+
 依次读取以下文件：
 - `miniprogram/app.json`
 - `miniprogram/app.js`

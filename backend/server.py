@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import subprocess
 import threading
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -95,11 +96,24 @@ class WatermarkBackend:
 BACKEND = WatermarkBackend()
 
 
+def _local_git_commit():
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return ""
+
+
 def build_version_payload():
     git_commit = (
         os.environ.get("RAILWAY_GIT_COMMIT_SHA")
         or os.environ.get("GIT_COMMIT_SHA")
         or os.environ.get("COMMIT_SHA")
+        or _local_git_commit()
         or "local"
     )
     if len(git_commit) > 12:
@@ -111,6 +125,15 @@ def build_version_payload():
         "gitCommit": git_commit,
         "provider": BACKEND.provider or "unconfigured",
         "configured": BACKEND.health()["configured"],
+    }
+
+
+def build_image_headers(content_type, inline=False):
+    filename = "image.png" if content_type == "image/png" else "image.jpg"
+    disposition = "inline" if inline else "attachment"
+    return {
+        "Content-Type": content_type,
+        "Content-Disposition": f'{disposition}; filename="{filename}"',
     }
 
 
@@ -204,14 +227,27 @@ class Handler(BaseHTTPRequestHandler):
                     content_type = "image/png"
                 except Exception:
                     pass  # 转换失败则返回原始数据
+        # fmt=jpeg：输出相册兼容 JPEG，比 PNG 体积小，保存更快
+        elif fmt in ("jpeg", "jpg") and content_type not in ("image/jpeg", "image/png"):
+            with _IMG_SEMAPHORE:
+                try:
+                    from PIL import Image
+                    img = Image.open(BytesIO(data)).convert("RGB")
+                    buf = BytesIO()
+                    img.save(buf, format="JPEG", quality=92, optimize=True)
+                    data = buf.getvalue()
+                    content_type = "image/jpeg"
+                except Exception:
+                    pass  # 转换失败则返回原始数据
 
-        filename = "image.png" if content_type == "image/png" else "image.jpg"
+        headers = build_image_headers(content_type, inline=thumb)
 
         self.send_response(200)
-        self.send_header("Content-Type", content_type)
+        for name, value in headers.items():
+            self.send_header(name, value)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+        self.send_header("Cache-Control", "public, max-age=86400")
         self.end_headers()
         self.wfile.write(data)
 

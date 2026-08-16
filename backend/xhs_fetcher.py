@@ -175,6 +175,11 @@ def _parse_images(html: str) -> List[dict]:
     return []
 
 
+def _is_unavailable_note_page(final_url: str) -> bool:
+    parsed = urllib.parse.urlparse(final_url)
+    return parsed.netloc.endswith("xiaohongshu.com") and parsed.path.rstrip("/") == "/404"
+
+
 # ── 公开接口 ────────────────────────────────────────────────────────────────
 
 def fetch_images(raw_input: str) -> dict:
@@ -209,6 +214,9 @@ def fetch_images(raw_input: str) -> dict:
     if "请登录" in html or "/login" in final_url:
         return {"ok": False, "error": "该帖子需要登录才能查看，暂不支持"}
 
+    if _is_unavailable_note_page(final_url):
+        return {"ok": False, "error": "链接不可访问或已失效，请检查小红书分享链接"}
+
     images = _parse_images(html)
 
     if not images:
@@ -239,10 +247,14 @@ def proxy_image(url: str, timeout: int = 20) -> Tuple[bytes, str]:
         raise RuntimeError("图片内容为空")
 
     # 根据文件头判断图片类型
-    ct = "image/jpeg"
-    if data[:4] == b'\x89PNG':
+    ct = "application/octet-stream"
+    if data[:2] == b'\xff\xd8':
+        ct = "image/jpeg"
+    elif data[:4] == b'\x89PNG':
         ct = "image/png"
     elif data[:4] == b'RIFF' and data[8:12] == b'WEBP':
         ct = "image/webp"
+    elif len(data) >= 12 and data[4:8] == b'ftyp' and data[8:12] in (b'avif', b'avis'):
+        ct = "image/avif"
 
     return data, ct

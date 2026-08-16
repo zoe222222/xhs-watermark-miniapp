@@ -5,6 +5,7 @@ __pycache__/
 
 # WeChat DevTools
 miniprogram/project.private.config.json
+miniprogram/version.local.js
 
 # Local model experiments and offline wheels
 models/
