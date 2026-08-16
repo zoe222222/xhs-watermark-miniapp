@@ -34,6 +34,12 @@ class DeployWorkflowTest(unittest.TestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, source)
 
+    def test_dockerfile_uses_tencent_mirrors_for_server_builds(self):
+        dockerfile = (ROOT / "backend" / "Dockerfile").read_text(encoding="utf-8")
+
+        self.assertIn("mirrors.tencentyun.com/debian", dockerfile)
+        self.assertIn("mirrors.cloud.tencent.com/pypi/simple", dockerfile)
+
 
 if __name__ == "__main__":
     unittest.main()
